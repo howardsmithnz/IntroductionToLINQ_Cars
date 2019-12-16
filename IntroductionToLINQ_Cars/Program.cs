@@ -10,6 +10,12 @@ namespace IntroductionToLINQ_Cars
     {
         static void Main(string[] args)
         {
+            var cars = ProcessFiles("fuel.csv");
+        }
+
+        private static List<Car> ProcessFiles(string path)
+        {
+            throw new NotImplementedException();
         }
     }
 }
