@@ -12,6 +12,7 @@ namespace IntroductionToLINQ_Cars
         static void Main(string[] args)
         {
             var cars = ProcessFiles("fuel.csv");
+            var manufacturers = ProcessManufacturers("manufacturers.csv");
 
             //var query = cars.OrderByDescending(c => c.Combined)
             //                .ThenBy(c => c.Name);
@@ -20,7 +21,12 @@ namespace IntroductionToLINQ_Cars
                 from car in cars
                 where car.Manufacturer == "BMW" && car.Year == 2016
                 orderby car.Combined descending, car.Name ascending
-                select car;
+                select new
+                {
+                    car.Manufacturer,
+                    car.Name,
+                    car.Combined
+                };
 
             var top =
                 cars.Where(c => c.Manufacturer == "BMW" && c.Year == 2016)
@@ -35,6 +41,24 @@ namespace IntroductionToLINQ_Cars
             {
                 Console.WriteLine($"{car.Name} : {car.Combined}");
             }
+        }
+
+        private static List<Manufacturer> ProcessManufacturers(string path)
+        {
+            var query =
+                File.ReadAllLines(path)
+                    .Where(l => l.Length > 1)
+                    .Select(l =>
+                    {
+                        var columns = l.Split(',');
+                        return new Manufacturer
+                        {
+                            Name = columns[0],
+                            Headquarters = columns[1],
+                            Year = int.Parse(columns[2])
+                        };
+                    });
+            return query.ToList();
         }
 
         private static List<Car> ProcessFiles(string path)
