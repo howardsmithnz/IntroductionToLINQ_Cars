@@ -19,11 +19,13 @@ namespace IntroductionToLINQ_Cars
 
             var query =
                 from car in cars
-                where car.Manufacturer == "BMW" && car.Year == 2016
+                //where car.Manufacturer == "BMW" && car.Year == 2016
+                join manufacturer in manufacturers 
+                    on car.Manufacturer equals manufacturer.Name
                 orderby car.Combined descending, car.Name ascending
                 select new
                 {
-                    car.Manufacturer,
+                    manufacturer.Headquarters,
                     car.Name,
                     car.Combined
                 };
@@ -35,11 +37,11 @@ namespace IntroductionToLINQ_Cars
                     .Select(c => c)
                     .First();
 
-            Console.WriteLine(top.Name);
+           // Console.WriteLine(top.Name);
 
             foreach (var car in query.Take(10))
             {
-                Console.WriteLine($"{car.Name} : {car.Combined}");
+                Console.WriteLine($"{car.Headquarters} {car.Name} : {car.Combined}");
             }
         }
 
