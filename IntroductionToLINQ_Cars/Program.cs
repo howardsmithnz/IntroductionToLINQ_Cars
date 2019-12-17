@@ -11,7 +11,7 @@ namespace IntroductionToLINQ_Cars
     {
         static void Main(string[] args)
         {
-            var cars = ProcessFiles("fuel.csv");
+            var cars = ProcessCars("fuel.csv");
             var manufacturers = ProcessManufacturers("manufacturers.csv");
 
             //var query = cars.OrderByDescending(c => c.Combined)
@@ -61,7 +61,7 @@ namespace IntroductionToLINQ_Cars
             return query.ToList();
         }
 
-        private static List<Car> ProcessFiles(string path)
+        private static List<Car> ProcessCars(string path)
         {
             //return 
             //    File.ReadAllLines(path)
