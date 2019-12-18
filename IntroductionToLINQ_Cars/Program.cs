@@ -84,7 +84,24 @@ namespace IntroductionToLINQ_Cars
                     Avg = carGroup.Average(c => c.Combined)
                 };
 
-            foreach (var result in query7)
+            var query8 =
+                cars.GroupBy(c => c.Manufacturer)
+                    .Select(g => 
+                    {
+                        var results = g.Aggregate(new CarStatistics(),
+                                            (acc, c) => acc.Accumulate(c),
+                                            acc => acc.Compute());
+                        return new
+                        {
+                            Name = g.Key,
+                            Avg = results.Average,
+                            Min = results.Min,
+                            Max = results.Max
+                        };
+                    })
+                    .OrderByDescending(r => r.Max);
+
+            foreach (var result in query8)
             {
                 Console.WriteLine($"{result.Name}");
                 Console.WriteLine($"\t Max: {result.Max}");
@@ -161,6 +178,38 @@ namespace IntroductionToLINQ_Cars
 
             return query.ToList();
         }
+    }
+
+    public class CarStatistics
+    {
+        public CarStatistics()
+        {
+            Max = Int32.MinValue;
+            Min = Int32.MaxValue;
+        }
+
+        public CarStatistics Accumulate(Car car)
+        {
+            Count += 1;
+            Total += car.Combined;
+            Max = Math.Max(Max, car.Combined);
+            Min = Math.Min(Min, car.Combined);
+
+            return this;
+        }
+
+        public CarStatistics Compute()
+        {
+            Average = Total / Count;
+
+            return this;
+        }
+
+        public int Max { get; set; }
+        public int Min { get; set; }
+        public int Total { get; set; }
+        public int Count { get; set; }
+        public double Average { get; set; }
     }
 
     public static class CarExtensions
