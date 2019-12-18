@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Xml.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,103 +12,121 @@ namespace IntroductionToLINQ_Cars
     {
         static void Main(string[] args)
         {
-            var cars = ProcessCars("fuel.csv");
-            var manufacturers = ProcessManufacturers("manufacturers.csv");
+            var records = ProcessCars("fuel.csv");
+
+            var document = new XDocument();
+            var cars = new XElement("Cars");
+
+            foreach (var record in records)
+            {
+                var car = new XElement("Car");
+                var name = new XElement("Name", record.Name);
+                var combined = new XElement("Combined", record.Combined);
+
+                cars.Add(car);
+                cars.Add(name);
+                cars.Add(combined);
+            }
+
+            document.Add(cars);
+            document.Save("fuel.xml");
+
+            //var manufacturers = ProcessManufacturers("manufacturers.csv");
 
             //var query = cars.OrderByDescending(c => c.Combined)
             //                .ThenBy(c => c.Name);
 
-            var query =
-                from car in cars
-                //where car.Manufacturer == "BMW" && car.Year == 2016
-                join manufacturer in manufacturers 
-                    on car.Manufacturer equals manufacturer.Name
-                orderby car.Combined descending, car.Name ascending
-                select new
-                {
-                    manufacturer.Headquarters,
-                    car.Name,
-                    car.Combined
-                };
+            //var query =
+            //    from car in cars
+            //    //where car.Manufacturer == "BMW" && car.Year == 2016
+            //    join manufacturer in manufacturers 
+            //        on car.Manufacturer equals manufacturer.Name
+            //    orderby car.Combined descending, car.Name ascending
+            //    select new
+            //    {
+            //        manufacturer.Headquarters,
+            //        car.Name,
+            //        car.Combined
+            //    };
 
-            var query2 =
-                cars.Join(manufacturers,
-                            c => c.Manufacturer,
-                            m => m.Name, 
-                            (c, m) => new
-                            {
-                                m.Headquarters,
-                                c.Name,
-                                c.Combined
-                            })
-                    .OrderByDescending(c => c.Combined)
-                    .ThenBy(c => c.Name);
+            //var query2 =
+            //    cars.Join(manufacturers,
+            //                c => c.Manufacturer,
+            //                m => m.Name, 
+            //                (c, m) => new
+            //                {
+            //                    m.Headquarters,
+            //                    c.Name,
+            //                    c.Combined
+            //                })
+            //        .OrderByDescending(c => c.Combined)
+            //        .ThenBy(c => c.Name);
 
-            var query3 =
-                from car in cars
-                group car by car.Manufacturer.ToUpper() into manufacturer
-                orderby manufacturer.Key
-                select manufacturer;
+            //var query3 =
+            //    from car in cars
+            //    group car by car.Manufacturer.ToUpper() into manufacturer
+            //    orderby manufacturer.Key
+            //    select manufacturer;
 
-            var query4 =
-                cars.GroupBy(c => c.Manufacturer.ToUpper())
-                    .OrderBy(g => g.Key);
+            //var query4 =
+            //    cars.GroupBy(c => c.Manufacturer.ToUpper())
+            //        .OrderBy(g => g.Key);
 
-            var query5 =
-                from manufacturer in manufacturers
-                join car in cars on manufacturer.Name equals car.Manufacturer
-                    into carGroup
-                select new
-                {
-                    Manufacturer = manufacturer,
-                    Cars = carGroup
-                };
+            //var query5 =
+            //    from manufacturer in manufacturers
+            //    join car in cars on manufacturer.Name equals car.Manufacturer
+            //        into carGroup
+            //    select new
+            //    {
+            //        Manufacturer = manufacturer,
+            //        Cars = carGroup
+            //    };
 
-            var query6 =
-                manufacturers.GroupJoin(cars, m => m.Name, c => c.Manufacturer, 
-                    (m, g) =>
-                    new
-                    {
-                      Manufacturer = m,
-                      Cars = g
-                    })
-                .OrderBy(m => m.Manufacturer.Name);
+            //var query6 =
+            //    manufacturers.GroupJoin(cars, m => m.Name, c => c.Manufacturer, 
+            //        (m, g) =>
+            //        new
+            //        {
+            //          Manufacturer = m,
+            //          Cars = g
+            //        })
+            //    .OrderBy(m => m.Manufacturer.Name);
 
-            var query7 =
-                from car in cars
-                group car by car.Manufacturer into carGroup
-                select new
-                {
-                    Name = carGroup.Key,
-                    Max = carGroup.Max(c => c.Combined),
-                    Min = carGroup.Min(c => c.Combined),
-                    Avg = carGroup.Average(c => c.Combined)
-                };
+            //var query7 =
+            //    from car in cars
+            //    group car by car.Manufacturer into carGroup
+            //    select new
+            //    {
+            //        Name = carGroup.Key,
+            //        Max = carGroup.Max(c => c.Combined),
+            //        Min = carGroup.Min(c => c.Combined),
+            //        Avg = carGroup.Average(c => c.Combined)
+            //    };
 
-            var query8 =
-                cars.GroupBy(c => c.Manufacturer)
-                    .Select(g => 
-                    {
-                        var results = g.Aggregate(new CarStatistics(),
-                                            (acc, c) => acc.Accumulate(c),
-                                            acc => acc.Compute());
-                        return new
-                        {
-                            Name = g.Key,
-                            Avg = results.Average,
-                            Min = results.Min,
-                            Max = results.Max
-                        };
-                    })
-                    .OrderByDescending(r => r.Max);
+            //var query8 =
+            //    cars.GroupBy(c => c.Manufacturer)
+            //        .Select(g => 
+            //        {
+            //            var results = g.Aggregate(new CarStatistics(),
+            //                                (acc, c) => acc.Accumulate(c),
+            //                                acc => acc.Compute());
+            //            return new
+            //            {
+            //                Name = g.Key,
+            //                Avg = results.Average,
+            //                Min = results.Min,
+            //                Max = results.Max
+            //            };
+            //        })
+            //        .OrderByDescending(r => r.Max);
 
-            foreach (var result in query8)
-            {
-                Console.WriteLine($"{result.Name}");
-                Console.WriteLine($"\t Max: {result.Max}");
-                Console.WriteLine($"\t Min: {result.Min}");
-                Console.WriteLine($"\t Avg: {result.Avg}");
-            }
+            //foreach (var result in query8)
+            //{
+            //    Console.WriteLine($"{result.Name}");
+            //    Console.WriteLine($"\t Max: {result.Max}");
+            //    Console.WriteLine($"\t Min: {result.Min}");
+            //    Console.WriteLine($"\t Avg: {result.Avg}");
+            //}
 
             //foreach (var group in query6)
             //{
@@ -128,12 +147,12 @@ namespace IntroductionToLINQ_Cars
             //}
 
 
-            var top =
-                cars.Where(c => c.Manufacturer == "BMW" && c.Year == 2016)
-                    .OrderByDescending(c => c.Combined)
-                    .ThenBy(c => c.Name)
-                    .Select(c => c)
-                    .First();
+            //var top =
+            //    cars.Where(c => c.Manufacturer == "BMW" && c.Year == 2016)
+            //        .OrderByDescending(c => c.Combined)
+            //        .ThenBy(c => c.Name)
+            //        .Select(c => c)
+            //        .First();
 
            // Console.WriteLine(top.Name);
 
