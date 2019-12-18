@@ -5,6 +5,7 @@ using System.Linq;
 using System.Xml.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.Entity;
 
 namespace IntroductionToLINQ_Cars
 {
@@ -12,22 +13,26 @@ namespace IntroductionToLINQ_Cars
     {
         static void Main(string[] args)
         {
-            var records = ProcessCars("fuel.csv");
+            Database.SetInitializer(new DropCreateDatabaseIfModelChanges<CarDb>());
+            InsertData();
+            QueryData();
 
-            var document = new XDocument();
-            var cars = new XElement("Cars");
+            //var records = ProcessCars("fuel.csv");
 
-            foreach (var record in records)
-            {
-                var name = new XAttribute("Name", record.Name);
-                var combined = new XAttribute("Combined", record.Combined);
-                var car = new XElement("Car", name, combined);
+            //var document = new XDocument();
+            //var cars = new XElement("Cars");
 
-                cars.Add(car);
-            }
+            //foreach (var record in records)
+            //{
+            //    var name = new XAttribute("Name", record.Name);
+            //    var combined = new XAttribute("Combined", record.Combined);
+            //    var car = new XElement("Car", name, combined);
 
-            document.Add(cars);
-            document.Save("fuel.xml");
+            //    cars.Add(car);
+            //}
+
+            //document.Add(cars);
+            //document.Save("fuel.xml");
 
             //var manufacturers = ProcessManufacturers("manufacturers.csv");
 
@@ -158,6 +163,27 @@ namespace IntroductionToLINQ_Cars
             //{
             //    Console.WriteLine($"{car.Headquarters} {car.Name} : {car.Combined}");
             //}
+        }
+
+        private static void QueryData()
+        {
+            Console.WriteLine("QueryData");
+        }
+
+        private static void InsertData()
+        {
+            var cars = ProcessCars("fuel.csv");
+            var db = new CarDb();
+
+            if (!db.Cars.Any())
+            {
+                foreach (var car in cars)
+                {
+                    db.Cars.Add(car);
+                    Console.WriteLine("Adding " + car.Name);
+                }
+                db.SaveChanges();
+            }
         }
 
         private static List<Manufacturer> ProcessManufacturers(string path)
