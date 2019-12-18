@@ -73,14 +73,33 @@ namespace IntroductionToLINQ_Cars
                     })
                 .OrderBy(m => m.Manufacturer.Name);
 
-            foreach (var group in query6)
-            {
-                Console.WriteLine($"{group.Manufacturer.Name}:{group.Manufacturer.Headquarters}");
-                foreach (var car in group.Cars.OrderByDescending(c => c.Combined).Take(2))
+            var query7 =
+                from car in cars
+                group car by car.Manufacturer into carGroup
+                select new
                 {
-                    Console.WriteLine($"\t{car.Name} : {car.Combined}");
-                }
+                    Name = carGroup.Key,
+                    Max = carGroup.Max(c => c.Combined),
+                    Min = carGroup.Min(c => c.Combined),
+                    Avg = carGroup.Average(c => c.Combined)
+                };
+
+            foreach (var result in query7)
+            {
+                Console.WriteLine($"{result.Name}");
+                Console.WriteLine($"\t Max: {result.Max}");
+                Console.WriteLine($"\t Min: {result.Min}");
+                Console.WriteLine($"\t Avg: {result.Avg}");
             }
+
+            //foreach (var group in query6)
+            //{
+            //    Console.WriteLine($"{group.Manufacturer.Name}:{group.Manufacturer.Headquarters}");
+            //    foreach (var car in group.Cars.OrderByDescending(c => c.Combined).Take(2))
+            //    {
+            //        Console.WriteLine($"\t{car.Name} : {car.Combined}");
+            //    }
+            //}
 
             //foreach (var group in query4)
             //{
