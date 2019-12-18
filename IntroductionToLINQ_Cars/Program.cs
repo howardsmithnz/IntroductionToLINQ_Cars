@@ -53,14 +53,43 @@ namespace IntroductionToLINQ_Cars
                 cars.GroupBy(c => c.Manufacturer.ToUpper())
                     .OrderBy(g => g.Key);
 
-            foreach (var group in query4)
+            var query5 =
+                from manufacturer in manufacturers
+                join car in cars on manufacturer.Name equals car.Manufacturer
+                    into carGroup
+                select new
+                {
+                    Manufacturer = manufacturer,
+                    Cars = carGroup
+                };
+
+            var query6 =
+                manufacturers.GroupJoin(cars, m => m.Name, c => c.Manufacturer, 
+                    (m, g) =>
+                    new
+                    {
+                      Manufacturer = m,
+                      Cars = g
+                    })
+                .OrderBy(m => m.Manufacturer.Name);
+
+            foreach (var group in query6)
             {
-                Console.WriteLine(group.Key);
-                foreach (var car in group.OrderByDescending(c => c.Combined).Take(2))
+                Console.WriteLine($"{group.Manufacturer.Name}:{group.Manufacturer.Headquarters}");
+                foreach (var car in group.Cars.OrderByDescending(c => c.Combined).Take(2))
                 {
                     Console.WriteLine($"\t{car.Name} : {car.Combined}");
                 }
             }
+
+            //foreach (var group in query4)
+            //{
+            //    Console.WriteLine(group.Key);
+            //    foreach (var car in group.OrderByDescending(c => c.Combined).Take(2))
+            //    {
+            //        Console.WriteLine($"\t{car.Name} : {car.Combined}");
+            //    }
+            //}
 
 
             var top =
