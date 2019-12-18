@@ -30,6 +30,39 @@ namespace IntroductionToLINQ_Cars
                     car.Combined
                 };
 
+            var query2 =
+                cars.Join(manufacturers,
+                            c => c.Manufacturer,
+                            m => m.Name, 
+                            (c, m) => new
+                            {
+                                m.Headquarters,
+                                c.Name,
+                                c.Combined
+                            })
+                    .OrderByDescending(c => c.Combined)
+                    .ThenBy(c => c.Name);
+
+            var query3 =
+                from car in cars
+                group car by car.Manufacturer.ToUpper() into manufacturer
+                orderby manufacturer.Key
+                select manufacturer;
+
+            var query4 =
+                cars.GroupBy(c => c.Manufacturer.ToUpper())
+                    .OrderBy(g => g.Key);
+
+            foreach (var group in query4)
+            {
+                Console.WriteLine(group.Key);
+                foreach (var car in group.OrderByDescending(c => c.Combined).Take(2))
+                {
+                    Console.WriteLine($"\t{car.Name} : {car.Combined}");
+                }
+            }
+
+
             var top =
                 cars.Where(c => c.Manufacturer == "BMW" && c.Year == 2016)
                     .OrderByDescending(c => c.Combined)
@@ -39,10 +72,10 @@ namespace IntroductionToLINQ_Cars
 
            // Console.WriteLine(top.Name);
 
-            foreach (var car in query.Take(10))
-            {
-                Console.WriteLine($"{car.Headquarters} {car.Name} : {car.Combined}");
-            }
+            //foreach (var car in query2.Take(10))
+            //{
+            //    Console.WriteLine($"{car.Headquarters} {car.Name} : {car.Combined}");
+            //}
         }
 
         private static List<Manufacturer> ProcessManufacturers(string path)
