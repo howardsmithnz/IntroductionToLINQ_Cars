@@ -167,13 +167,27 @@ namespace IntroductionToLINQ_Cars
 
         private static void QueryData()
         {
-            Console.WriteLine("QueryData");
+            var db = new CarDb();
+            db.Database.Log = Console.WriteLine;
+
+            //var query = from car in db.Cars
+            //            orderby car.Combined descending, car.Name ascending
+            //            select car;
+
+            var query =
+                db.Cars.OrderByDescending(c => c.Combined).ThenBy(c => c.Name).Take(10);
+
+            foreach (var car in query)
+            {
+                Console.WriteLine($"{car.Name}: {car.Combined}");
+            }
         }
 
         private static void InsertData()
         {
             var cars = ProcessCars("fuel.csv");
             var db = new CarDb();
+            db.Database.Log = Console.WriteLine;
 
             if (!db.Cars.Any())
             {
